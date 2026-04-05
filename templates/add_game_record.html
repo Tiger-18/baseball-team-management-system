@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>添加比赛记录 - 棒球队管理系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-baseball-ball me-2"></i>棒球队球员管理系统
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-10 offset-md-1">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i>添加比赛记录</h4>
+                    </div>
+                    <div class="card-body">
+                        <form id="gameRecordForm">
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <label for="player_id" class="form-label">选择球员 *</label>
+                                    <select class="form-select" id="player_id" required onchange="onPlayerChange()">
+                                        <option value="">请选择球员</option>
+                                        {% for player in players %}
+                                        <option value="{{ player.id }}" data-is-pitcher="{{ player.is_pitcher }}">
+                                            {{ player.name }} (#{{ player.jersey_number }}) - {{ player.primary_position or '未指定' }}
+                                            {% if player.is_pitcher %}[可投球]{% else %}[非投手]{% endif %}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="opponent" class="form-label">对手球队 *</label>
+                                    <input type="text" class="form-control" id="opponent" list="opponentsList" required>
+                                    <datalist id="opponentsList"></datalist>
+                                    <small class="text-muted">可直接选择历史对手，也可以手动输入新对手名称。</small>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <label for="game_date" class="form-label">比赛日期 *</label>
+                                    <input type="date" class="form-control" id="game_date" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">记录类型</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="record_type" id="battingRecord" value="batting" checked onchange="toggleRecordType()">
+                                        <label class="form-check-label" for="battingRecord">
+                                            打击记录
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="record_type" id="pitchingRecord" value="pitching" onchange="toggleRecordType()">
+                                        <label class="form-check-label" for="pitchingRecord">
+                                            投球记录
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 打击记录字段 -->
+                            <div id="battingFields" class="mb-4">
+                                <div class="card">
+                                    <div class="card-header bg-info text-white">
+                                        打击数据
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-4 mb-3">
+                                                <label for="at_bats" class="form-label">打数 (AB) *</label>
+                                                <input type="number" class="form-control" id="at_bats" min="0" value="0">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="runs" class="form-label">得分 (R)</label>
+                                                <input type="number" class="form-control" id="runs" min="0" value="0">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="hits" class="form-label">安打 (H)</label>
+                                                <input type="number" class="form-control" id="hits" min="0" value="0">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row">
+                                            <div class="col-md-4 mb-3">
+                                                <label for="rbi" class="form-label">打点 (RBI)</label>
+                                                <input type="number" class="form-control" id="rbi" min="0" value="0">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="walks" class="form-label">保送 (BB)</label>
+                                                <input type="number" class="form-control" id="walks" min="0" value="0">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="strikeouts" class="form-label">三振出局 (SO)</label>
+                                                <input type="number" class="form-control" id="strikeouts" min="0" value="0">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3 mb-3">
+                                                <label for="doubles" class="form-label">二垒安打 (2B)</label>
+                                                <input type="number" class="form-control" id="doubles" min="0" value="0">
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <label for="triples" class="form-label">三垒安打 (3B)</label>
+                                                <input type="number" class="form-control" id="triples" min="0" value="0">
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <label for="home_runs_game" class="form-label">本垒打 (HR)</label>
+                                                <input type="number" class="form-control" id="home_runs_game" min="0" value="0">
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <label for="hit_by_pitch" class="form-label">被中身球 (HBP)</label>
+                                                <input type="number" class="form-control" id="hit_by_pitch" min="0" value="0">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3 mb-3">
+                                                <label for="stolen_bases_game" class="form-label">盗垒 (SB)</label>
+                                                <input type="number" class="form-control" id="stolen_bases_game" min="0" value="0">
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <label for="caught_stealing" class="form-label">被触杀 (CS)</label>
+                                                <input type="number" class="form-control" id="caught_stealing" min="0" value="0">
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <label for="sacrifice_flys" class="form-label">高飞牺牲打 (SF)</label>
+                                                <input type="number" class="form-control" id="sacrifice_flys" min="0" value="0">
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <label for="sacrifice_hits" class="form-label">牺牲触击 (SH)</label>
+                                                <input type="number" class="form-control" id="sacrifice_hits" min="0" value="0">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 投球记录字段 -->
+                            <div id="pitchingFields" class="mb-4" style="display: none;">
+                                <div class="card">
+                                    <div class="card-header bg-warning text-white">
+                                        投球数据
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-4 mb-3">
+                                                <label for="innings_pitched" class="form-label">局数 (IP) *</label>
+                                                <input type="number" step="0.1" class="form-control" id="innings_pitched" min="0" value="0">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="hits_allowed" class="form-label">被打安打数 (H)</label>
+                                                <input type="number" class="form-control" id="hits_allowed" min="0" value="0">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="runs_allowed" class="form-label">被得分数 (R)</label>
+                                                <input type="number" class="form-control" id="runs_allowed" min="0" value="0">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row">
+                                            <div class="col-md-4 mb-3">
+                                                <label for="earned_runs" class="form-label">自责分 (ER)</label>
+                                                <input type="number" class="form-control" id="earned_runs" min="0" value="0">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="walks_allowed" class="form-label">保送数 (BB)</label>
+                                                <input type="number" class="form-control" id="walks_allowed" min="0" value="0">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="strikeouts_pitched" class="form-label">三振数 (SO)</label>
+                                                <input type="number" class="form-control" id="strikeouts_pitched" min="0" value="0">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="home_runs_allowed" class="form-label">被打本垒打数 (HR)</label>
+                                                <input type="number" class="form-control" id="home_runs_allowed" min="0" value="0">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">比赛结果</label>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="win">
+                                                    <label class="form-check-label" for="win">胜投</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="loss">
+                                                    <label class="form-check-label" for="loss">败投</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="save">
+                                                    <label class="form-check-label" for="save">救援成功</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4 mb-3">
+                                                <label for="pitches" class="form-label">总投球数 (P)</label>
+                                                <input type="number" class="form-control" id="pitches" min="0" value="0">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="strikes" class="form-label">好球数 (S)</label>
+                                                <input type="number" class="form-control" id="strikes" min="0" value="0">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="hit_by_pitch_allowed" class="form-label">触身数 (HBP)</label>
+                                                <input type="number" class="form-control" id="hit_by_pitch_allowed" min="0" value="0">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="batters_faced" class="form-label">面对打者数 (BF)</label>
+                                                <input type="number" class="form-control" id="batters_faced" min="0" value="0">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a href="/game_stats" class="btn btn-secondary me-md-2">
+                                    <i class="fas fa-arrow-left"></i> 返回统计页面
+                                </a>
+                                <button type="button" class="btn btn-primary" onclick="submitGameRecord()">
+                                    <i class="fas fa-save"></i> 保存比赛记录
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/game_record.js') }}"></script>
+</body>
+</html>

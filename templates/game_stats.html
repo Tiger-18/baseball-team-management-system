@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>比赛数据统计 - 棒球队管理系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-baseball-ball me-2"></i>棒球队球员管理系统
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-baseball-bat-ball me-2"></i>比赛数据统计</h2>
+            <div>
+                <a href="/add_game_record" class="btn btn-primary me-2">
+                    <i class="fas fa-plus-circle"></i> 添加比赛记录
+                </a>
+                <a href="/" class="btn btn-outline-secondary">
+                    <i class="fas fa-home"></i> 返回首页
+                </a>
+            </div>
+        </div>
+
+        <ul class="nav nav-tabs mb-4" id="statsTabs">
+            <li class="nav-item">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#battersTab">
+                    <i class="fas fa-baseball-bat-ball"></i> 打击数据
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#pitchersTab">
+                    <i class="fas fa-baseball"></i> 投手数据
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#leaderboardsTab">
+                    <i class="fas fa-trophy"></i> 排行榜
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- 打击数据标签页 -->
+            <div class="tab-pane fade show active" id="battersTab">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">打击数据统计表</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="battersTable" class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>姓名</th>
+                                        <th>背号</th>
+                                        <th>守备位置</th>
+                                        <th>打击率</th>
+                                        <th>上垒率</th>
+                                        <th>打数</th>
+                                        <th>安打</th>
+                                        <th>打点</th>
+                                        <th>得分</th>
+                                        <th>三振</th>
+                                        <th>保送</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- 动态加载数据 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">打击数据可视化</h5>
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-success mb-3" onclick="loadBattingVisualization()">
+                            <i class="fas fa-chart-bar"></i> 生成打击统计图表
+                        </button>
+                        <div id="battingChart"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 投手数据标签页 -->
+            <div class="tab-pane fade" id="pitchersTab">
+                <div class="card mb-4">
+                    <div class="card-header bg-warning text-white">
+                        <h5 class="mb-0">投手数据统计表</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="pitchersTable" class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>姓名</th>
+                                        <th>背号</th>
+                                        <th>防御率</th>
+                                        <th>WHIP</th>
+                                        <th>局数</th>
+                                        <th>被安打</th>
+                                        <th>被得分</th>
+                                        <th>自责分</th>
+                                        <th>三振</th>
+                                        <th>保送</th>
+                                        <th>被本垒打</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- 动态加载数据 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">投手数据可视化</h5>
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-info mb-3" onclick="loadPitchingVisualization()">
+                            <i class="fas fa-chart-line"></i> 生成投手统计图表
+                        </button>
+                        <div id="pitchingChart"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 排行榜标签页 -->
+            <div class="tab-pane fade" id="leaderboardsTab">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-danger text-white">
+                                <h5 class="mb-0">打击排行榜</h5>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>排名</th>
+                                            <th>球员</th>
+                                            <th>背号</th>
+                                            <th>打击率</th>
+                                            <th>上垒率</th>
+                                            <th>打点</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="battingLeaderboard">
+                                        <!-- 动态加载 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">投手排行榜</h5>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>排名</th>
+                                            <th>球员</th>
+                                            <th>背号</th>
+                                            <th>防御率</th>
+                                            <th>WHIP</th>
+                                            <th>三振</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="pitchingLeaderboard">
+                                        <!-- 动态加载 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="{{ url_for('static', filename='js/game_stats.js') }}"></script>
+</body>
+</html>

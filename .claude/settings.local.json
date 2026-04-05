@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(.venv/Scripts/python.exe -c ':*)",
+      "Bash(.venv/Scripts/python.exe import_pdfs.py --dry-run)",
+      "Bash(ls -lt --time=ctime *.py)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://127.0.0.1:5000/)",
+      "Bash(curl -s http://127.0.0.1:5000/api/players)",
+      "Bash(curl -s http://127.0.0.1:5000/)",
+      "Bash(taskkill:*)",
+      "Bash(xxd \"C:\\\\Users\\\\champ\\\\Desktop\\\\program\\\\baseball-player-manager\\\\pdf_parser.py\")",
+      "Bash(python:*)",
+      "Bash(curl -s http://127.0.0.1:5000/api/debug/players)",
+      "Bash(curl -s http://127.0.0.1:5000/api/stats/batting)",
+      "Bash(curl -s http://127.0.0.1:5000/api/stats/pitching)",
+      "Bash(curl -s http://127.0.0.1:5000/api/stats/visualization)"
+    ]
+  }
+}
