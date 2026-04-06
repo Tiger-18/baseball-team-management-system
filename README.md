@@ -5,7 +5,6 @@
 当前版本已经完成一轮比较重要的底层整理：
 
 - 数据库统一为 SQLite
-- 数据模型同时提供 SQLAlchemy 运行时实现和 Prisma 标准 schema
 - 球员基础信息、打击汇总、投球汇总拆分存储
 - 支持多守位
 - `is_pitcher` 改为独立业务标记，而不是和野手互斥的身份
@@ -37,7 +36,6 @@
 - 图表：matplotlib / seaborn / plotly
 - PDF 解析：pdfplumber
 - 前端：Bootstrap 5 + 原生 JavaScript + jQuery + DataTables
-- 数据模型标准：Prisma
 
 ## 数据结构
 
@@ -69,26 +67,6 @@
 - 每个球员都会保留 `fielder_profile`
 - 系统会根据 `is_pitcher` 在投球统计场景中使用 `pitcher_profile`
 - 单场记录写入 `game_records` 后，会同步更新汇总档案
-
-### Prisma Schema
-
-Prisma schema 位于：
-
-- `prisma/schema.prisma`
-
-说明：
-
-- 当前 Flask 运行时仍然使用 SQLAlchemy
-- Prisma 目前用于固定数据结构和后续 Node/Next.js 扩展
-- Prisma schema 已和当前 SQLite 结构对齐
-
-如果你后续要使用 Prisma：
-
-```bash
-export DATABASE_URL="file:../instance/baseball_players.db"
-cd prisma
-npx prisma generate
-```
 
 ## 页面入口
 
@@ -163,12 +141,10 @@ npx prisma generate
 
 - Python 3.11 或 3.12
 - pip
-- Node.js 20+
 
 说明：
 
 - 运行 Flask 项目主要依赖 Python
-- Node.js 主要用于 Prisma 和后续前端工具链，不是 Flask 启动必需项
 
 ## 安装步骤
 
@@ -182,25 +158,6 @@ cd 文件夹目录
 
 ```bash
 pip install -r requirements.txt
-```
-
-### 3. 安装 Node.js
-
-如果你已经装好了 Node，可以跳过这一步。
-
-macOS（Homebrew）：
-
-```bash
-brew install node
-```
-
-确认安装：
-
-```bash
-python --version
-pip --version
-node --version
-npm --version
 ```
 
 ## 启动项目
@@ -300,9 +257,6 @@ baseball-player-manager/
 ├── cleanup_db.py
 ├── requirements.txt
 ├── README.md
-├── prisma/
-│   ├── schema.prisma
-│   └── README.md
 ├── templates/
 ├── static/
 ├── data/
@@ -317,8 +271,6 @@ baseball-player-manager/
   - SQLAlchemy 数据模型与兼容迁移逻辑
 - `migrate_profiles_sqlite.py`
   - 旧数据库迁移脚本
-- `prisma/schema.prisma`
-  - Prisma 数据模型
 - `templates/add_player.html`
   - 添加球员页面
 - `templates/add_game_record.html`
@@ -378,18 +330,9 @@ python migrate_profiles_sqlite.py
 python -m py_compile app.py database.py
 ```
 
-检查前端脚本语法：
-
-```bash
-node --check static/js/script.js
-node --check static/js/game_record.js
-node --check static/js/matchup_stats.js
-```
-
 ## 后续可继续优化的方向
 
 - 把 Flask 接口进一步拆成更清晰的服务层
-- 为 Prisma 增加正式 migration 流程
 - 给比赛记录增加编辑功能
 - 给对局信息增加日期范围筛选
 - 增加用户登录和权限管理
@@ -400,5 +343,3 @@ node --check static/js/matchup_stats.js
 - `app.py`
 - `database.py`
 - `migrate_profiles_sqlite.py`
-- `prisma/schema.prisma`
-- `prisma/README.md`
