@@ -175,7 +175,7 @@ npx prisma generate
 ### 1. 进入项目目录
 
 ```bash
-cd /Users/baiyunxiao/Desktop/baseball-player-manager
+cd 文件夹目录
 ```
 
 ### 2. 安装 Python 依赖
